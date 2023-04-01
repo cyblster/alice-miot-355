@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% block title %}
+    {% if title %}
+    <title>Мой умный дом - {{title}}</title>
+    {% else %}
+    <title>Мой умный дом</title>
+    {% endif %}
+    {% endblock %}
+    <link rel="icon" href="/static/icon.svg">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="form-wrapper">
+        <div>
+            <img src="/static/icon.svg">
+        </div>
+
+        {% block flush %}
+        {% for message in get_flashed_messages() %}
+        <div class="invalid-flash">
+            <p>{{ message }}</p>
+        </div>
+        {% endfor %}
+        {% endblock %}
+
+        {% block form %}
+        <form method="post" action="">
+            {% for field in form if field.name not in ['csrf_token', 'remember', 'submit'] -%}
+            <div>
+                {{ field }}
+                {% if field.errors %}
+                <div class="invalid-feedback">
+                    {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div>
+                {{ form.hidden_tag() }}
+            </div>
+            <div>
+                {{ form.submit }}
+            </div>
+        </form>
+        {% endblock %}
+
+        <div class="redirect">
+        {% block redirect %}
+        {% endblock %}
+        </div>
+    </div>
+</body>
+</html>
