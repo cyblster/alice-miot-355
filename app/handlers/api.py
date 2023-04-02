@@ -2,7 +2,7 @@ from flask import request
 
 from app import app
 from app.jwt import get_payload
-from app.devices import fan, vacuum
+from app.devices import fan, vacuum, tv
 
 
 @app.route('/v1.0', methods=['HEAD'])
@@ -27,7 +27,7 @@ def get_user_devices():
     except ValueError:
         return 'Invalid token', 403
 
-    devices = [device.yandex_info for device in (fan, vacuum)]
+    devices = [device.yandex_info for device in (fan, vacuum, tv)]
 
     return {'request_id': request_id, 'payload': {'user_id': payload['sub'], 'devices': devices}}, 200
 
@@ -47,6 +47,7 @@ def get_user_device_status():
         devices.append({
             'ijai.vacuum.v10': vacuum,
             'dmaker.fan.p18': fan,
+            'xiaomi.tv.p1': tv,
         }[device['id']].yandex_status)
 
     return {'request_id': request_id, 'payload': {'devices': devices}}, 200
@@ -67,6 +68,7 @@ def send_action_to_user_device():
         actions_status['payload']['devices'][i]['capabilities'] = {
             'ijai.vacuum.v10': vacuum,
             'dmaker.fan.p18': fan,
+            'xiaomi.tv.p1': tv,
         }[device['id']].yandex_action(actions_status['payload']['devices'][i]['capabilities'])
 
     return {'request_id': request_id, 'payload': actions_status['payload']}, 200

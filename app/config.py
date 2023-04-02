@@ -24,3 +24,6 @@ FAN_TOKEN = os.getenv('FAN_TOKEN')
 
 VACUUM_HOST = os.getenv('VACUUM_HOST')
 VACUUM_TOKEN = os.getenv('VACUUM_TOKEN')
+
+TV_HOST = os.getenv('TV_HOST')
+TV_MAC = os.getenv('TV_MAC')
