@@ -210,8 +210,6 @@ class Lite2Vacuum(MiotDevice):
     def yandex_action(self, capabilities):
         capabilities_status = []
 
-        print(self.status())
-
         for capability in capabilities:
             if capability['type'] == 'devices.capabilities.on_off':
                 if capability['state']['value']:
