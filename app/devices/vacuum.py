@@ -1,92 +1,82 @@
-import logging
-from miio.click_common import command
-from miio.miot_device import DeviceStatus, MiotDevice
+from enum import Enum
 
-_LOGGER = logging.getLogger(__name__)
+from app.cloud import MiCloud
 
 
-# Source  https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:vacuum:0000A006:ijai-v10:1
-_MAPPINGS = {
-    'ijai.vacuum.v10': {
-        'state': {'siid': 2, 'piid': 1},
-        'sweep_mode': {'siid': 2, 'piid': 4},  # 0 - Sweep, 1 - Sweep And Mop, 2 - Mop
-        'start': {'siid': 2, 'aiid': 1},
-        'stop': {'siid': 2, 'aiid': 2},
-        'home': {'siid': 3, 'aiid': 1},  # Return to base
-        'battery': {'siid': 3, 'piid': 1},  # [0, 100] step 1
-        'fan_speed': {'siid': 7, 'piid': 5},  # 0 - eco, 1 - standard, 2 - medium, 3 - turbo
-        'water_level': {'siid': 7, 'piid': 6},  # 0 - low, 1 - medium, 2 - high
+class SweepMode(Enum):
+    one = 0
+    two = 1
+    three = 2
+
+
+class WorkSpeed(Enum):
+    eco = 0
+    normal = 1
+    medium = 2
+    turbo = 3
+
+
+class WaterLevel(Enum):
+    low = 0
+    medium = 1
+    high = 2
+
+
+class Lite2Vacuum:
+    def __init__(self, cloud: MiCloud):
+        # https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:vacuum:0000A006:ijai-v10:1
+        self.__cloud = cloud
+
+        self.did = '474203165'
+        self.mapping = {
+            'state': {'siid': 2, 'piid': 1},
+            'sweep_mode': {'siid': 2, 'piid': 4},
+            'work_speed': {'siid': 7, 'piid': 5},
+            'water_level': {'siid': 7, 'piid': 6},
+            'start': {'siid': 2, 'aiid': 1},
+            'stop': {'siid': 2, 'aiid': 2},
+            'home': {'siid': 3, 'aiid': 1},
+            'battery': {'siid': 3, 'piid': 1}
     }
-}
 
+    def set_state(self, state: bool) -> bool:
+        if state:
+            return self.__cloud.call_action(did=self.did, **self.mapping['start'])
+        return self.__cloud.call_action(did=self.did, **self.mapping['home'])
 
-def _enum_as_dict(cls):
-    return {x.name: x.value for x in list(cls)}
+    def set_pause(self, pause: bool) -> bool:
+        if pause:
+            return self.__cloud.call_action(did=self.did, **self.mapping['stop'])
+        return self.__cloud.call_action(did=self.did, **self.mapping['start'])
 
+    def set_sweep_mode(self, sweep_mode: SweepMode) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'], value=sweep_mode.value)
 
-class Lite2Status(DeviceStatus):
-    def __init__(self, data):
-        self.data = data
+    def set_work_speed(self, work_speed: WorkSpeed) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'], value=work_speed.value)
+
+    def set_water_level(self, water_level: WaterLevel) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['water_level'], value=water_level.value)
+
+    @property
+    def state(self) -> bool:
+        return self.__cloud.get_property(did=self.did, **self.mapping['state'])
+
+    @property
+    def sweep_mode(self) -> SweepMode:
+        return SweepMode(self.__cloud.get_property(did=self.did, **self.mapping['sweep_mode'])).name
+
+    @property
+    def work_speed(self) -> WorkSpeed:
+        return WorkSpeed(self.__cloud.get_property(did=self.did, **self.mapping['work_speed'])).name
+
+    @property
+    def water_level(self) -> WaterLevel:
+        return WaterLevel(self.__cloud.get_property(did=self.did, **self.mapping['water_level'])).name
 
     @property
     def battery(self) -> int:
-        return self.data['battery']
-
-    @property
-    def state(self) -> int:
-        return self.data['state']
-
-    @property
-    def fan_speed(self) -> int:
-        return self.data['fan_speed']
-
-    @property
-    def sweep_mode(self) -> int:
-        return self.data['sweep_mode']
-
-    @property
-    def water_level(self) -> int:
-        return self.data['water_level']
-
-
-class Lite2Vacuum(MiotDevice):
-    _mappings = _MAPPINGS
-
-    sweep_mode_presets = ('one', 'two', 'three')
-    fan_speed_presets = ('eco', 'normal', 'medium', 'turbo')
-
-    @command()
-    def status(self) -> Lite2Status:
-        return Lite2Status(
-            {
-                prop['did']: prop['value'] if prop['code'] == 0 else None
-                for prop in self.get_properties_for_mapping()
-            }
-        )
-
-    @command()
-    def home(self):
-        return self.call_action('home')
-
-    @command()
-    def start(self) -> None:
-        return self.call_action('start')
-
-    @command()
-    def stop(self):
-        return self.call_action('stop')
-
-    @command()
-    def set_fan_speed(self, fan_speed: int):
-        return self.set_property('fan_speed', fan_speed)
-
-    @command()
-    def set_sweep_mode(self, sweep_mode: int):
-        return self.set_property('sweep_mode', sweep_mode)
-
-    @command()
-    def set_water_level(self, water_level: int):
-        return self.set_property('water_level', water_level)
+        return self.__cloud.get_property(did=self.did, **self.mapping['battery'])
 
     @property
     def yandex_info(self):
@@ -162,8 +152,6 @@ class Lite2Vacuum(MiotDevice):
 
     @property
     def yandex_status(self):
-        device_status = self.status()
-
         return {
             'id': 'ijai.vacuum.v10',
             'capabilities': [
@@ -171,28 +159,28 @@ class Lite2Vacuum(MiotDevice):
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'cleanup_mode',
-                        'value': self.sweep_mode_presets[device_status.sweep_mode]
+                        'value': self.sweep_mode
                     }
                 },
                 {
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'work_speed',
-                        'value': self.fan_speed_presets[device_status.fan_speed]
+                        'value': self.work_speed
                     }
                 },
                 {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'pause',
-                        'value': device_status.state in (1, 2)
+                        'value': self.state in (1, 2)
                     }
                 },
                 {
                     'type': 'devices.capabilities.on_off',
                     'state': {
                         'instance': 'on',
-                        'value': device_status.state in (2, 5, 6, 7)
+                        'value': self.state in (2, 5, 6, 7)
                     }
                 }
             ],
@@ -201,7 +189,7 @@ class Lite2Vacuum(MiotDevice):
                     'type': 'devices.properties.float',
                     'state': {
                         'instance': 'battery_level',
-                        'value': device_status.battery
+                        'value': self.battery
                     }
                 }
             ]
@@ -210,27 +198,29 @@ class Lite2Vacuum(MiotDevice):
     def yandex_action(self, capabilities):
         capabilities_status = []
 
+        status = 'ERROR'
         for capability in capabilities:
             if capability['type'] == 'devices.capabilities.on_off':
-                if capability['state']['value']:
-                    self.start()
-                else:
-                    self.home()
+                if self.set_state(capability['state']['value']):
+                    status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'cleanup_mode':
-                    self.set_sweep_mode(self.sweep_mode_presets.index(capability['state']['value']))
+                    if self.set_sweep_mode(capability['state']['value']):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'work_speed':
-                    self.set_fan_speed(self.fan_speed_presets.index(capability['state']['value']))
+                    if self.set_work_speed(capability['state']['value']):
+                        status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':
                 if capability['state']['instance'] == 'pause':
-                    self.stop() if capability['state']['value'] else self.start()
+                    if self.set_pause(capability['state']['value']):
+                        status = 'DONE'
 
             capabilities_status.append({
                 'type': capability['type'],
                 'state': {'instance': capability['state']['instance'], 'action_result': {
-                    'status': 'DONE'
+                    'status': status
                 }}})
 
         return capabilities_status

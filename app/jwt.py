@@ -61,6 +61,9 @@ def get_payload(jwt_token: str) -> dict:
     if expected_signature != actual_signature:
         raise ValueError('Invalid token')
 
+    if datetime.utcnow() > datetime.fromisoformat(payload['exp']):
+        raise ValueError('Expired Token')
+
     return payload
 
 

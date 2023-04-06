@@ -2,7 +2,7 @@ from flask import request
 
 from app import app
 from app.jwt import get_payload
-from app.devices import fan, vacuum, tv
+from app.devices import devices
 
 
 @app.route('/v1.0', methods=['HEAD'])
@@ -24,12 +24,12 @@ def get_user_devices():
 
     try:
         payload = get_payload(access_token)
-    except ValueError:
-        return 'Invalid token', 403
+    except ValueError as exc:
+        return exc, 403
 
-    devices = [device.yandex_info for device in (fan, vacuum, tv)]
+    devices_info = [device.yandex_info for device in devices.values()]
 
-    return {'request_id': request_id, 'payload': {'user_id': payload['sub'], 'devices': devices}}, 200
+    return {'request_id': request_id, 'payload': {'user_id': payload['sub'], 'devices': devices_info}}, 200
 
 
 @app.route('/v1.0/user/devices/query', methods=['POST'])
@@ -39,18 +39,14 @@ def get_user_device_status():
 
     try:
         get_payload(access_token)
-    except ValueError:
-        return 'Invalid token', 403
+    except ValueError as exc:
+        return exc, 403
 
-    devices = []
+    devices_status = []
     for device in request.json['devices']:
-        devices.append({
-            'ijai.vacuum.v10': vacuum,
-            'dmaker.fan.p18': fan,
-            'xiaomi.tv.p1': tv,
-        }[device['id']].yandex_status)
+        devices_status.append(devices[device['id']].yandex_status)
 
-    return {'request_id': request_id, 'payload': {'devices': devices}}, 200
+    return {'request_id': request_id, 'payload': {'devices': devices_status}}, 200
 
 
 @app.route('/v1.0/user/devices/action', methods=['POST'])
@@ -60,15 +56,12 @@ def send_action_to_user_device():
 
     try:
         get_payload(access_token)
-    except ValueError:
-        return 'Invalid token', 403
+    except ValueError as exc:
+        return exc, 403
 
-    actions_status = request.json
-    for i, device in enumerate(actions_status['payload']['devices']):
-        actions_status['payload']['devices'][i]['capabilities'] = {
-            'ijai.vacuum.v10': vacuum,
-            'dmaker.fan.p18': fan,
-            'xiaomi.tv.p1': tv,
-        }[device['id']].yandex_action(actions_status['payload']['devices'][i]['capabilities'])
+    devices_action = request.json['payload']['devices']
+    for i, device in enumerate(devices_action):
+        capabilities = devices_action[i]['capabilities']
+        devices_action[i]['capabilities'] = devices[device['id']].yandex_action(capabilities)
 
-    return {'request_id': request_id, 'payload': actions_status['payload']}, 200
+    return {'request_id': request_id, 'payload': {'devices': devices_action}}, 200

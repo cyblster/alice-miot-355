@@ -1,40 +1,21 @@
-import logging
 from enum import Enum
 
-from miio.click_common import command
-from miio.miot_device import DeviceStatus, MiotDevice
-
-_LOGGER = logging.getLogger(__name__)
+from app.cloud import MiCloud
 
 
-# Source  https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:vacuum:0000A006:ijai-v10:1
-_MAPPINGS = {
-    'dmaker.fan.p18': {
-        'power': {'siid': 2, 'piid': 1},
-        'fan_speed': {'siid': 2, 'piid': 10},
-        'child_lock': {'siid': 3, 'piid': 1},
-        'swing_mode': {'siid': 2, 'piid': 4},
-        'swing_angle': {'siid': 2, 'piid': 5},
-        'buzzer': {'siid': 2, 'piid': 8},
-        'light': {'siid': 2, 'piid': 7},
-        'mode': {'siid': 2, 'piid': 3},
-    }
-}
-
-
-class FanSpeed(Enum):
+class FanLevel(Enum):
     one = 1
-    two = 35
-    three = 70
-    four = 100
+    two = 2
+    three = 3
+    four = 4
 
 
-class SwingMode(Enum):
+class Mode(Enum):
     normal = 0
     auto = 1
 
 
-class SwingAngle(Enum):
+class Angle(Enum):
     min = 30
     low = 60
     medium = 90
@@ -42,94 +23,78 @@ class SwingAngle(Enum):
     max = 140
 
 
-class Standing2Status(DeviceStatus):
-    def __init__(self, data):
-        self.data = data
+class Standing2Fan:
+    def __init__(self, cloud: MiCloud):
+        # https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:fan:0000A005:dmaker-p18:1
+        self.__cloud = cloud
+
+        self.did = '411582808'
+        self.mapping = {
+            'power': {'siid': 2, 'piid': 1},
+            'mode': {'siid': 2, 'piid': 3},
+            'fan_level': {'siid': 2, 'piid': 2},
+            'oscillation': {'siid': 2, 'piid': 4},
+            'angle': {'siid': 2, 'piid': 5},
+            'child_lock': {'siid': 3, 'piid': 1},
+            'buzzer': {'siid': 2, 'piid': 8},
+            'light': {'siid': 2, 'piid': 7}
+        }
+
+    def set_power(self, power: bool) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['power'], value=power)
+
+    def set_mode(self, mode: Mode) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=mode.value)
+
+    def set_fan_level(self, fan_level: FanLevel) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=fan_level.value)
+
+    def set_oscillation(self, oscillation: bool) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
+
+    def set_angle(self, angle: Angle) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=angle.value)
+
+    def set_child_lock(self, child_lock: bool) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['child_lock'], value=child_lock)
+
+    def set_buzzer(self, buzzer: bool) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['buzzer'], value=buzzer)
+
+    def set_light(self, light: bool) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['light'], value=light)
 
     @property
-    def power(self) -> str:
-        return 'on' if self.data['power'] else 'off'
+    def power(self) -> bool:
+        return self.__cloud.get_property(did=self.did, **self.mapping['power'])
 
     @property
-    def is_on(self) -> bool:
-        return self.data['power']
+    def mode(self) -> Mode:
+        return Mode(self.__cloud.get_property(did=self.did, **self.mapping['mode'])).name
 
     @property
-    def mode(self) -> SwingMode:
-        return SwingMode(self.data["mode"])
+    def fan_level(self) -> FanLevel:
+        return FanLevel(self.__cloud.get_property(did=self.did, **self.mapping['fan_level'])).name
 
     @property
-    def fan_speed(self) -> FanSpeed:
-        return FanSpeed(self.data["fan_speed"])
+    def oscillation(self) -> bool:
+        return self.__cloud.get_property(did=self.did, **self.mapping['oscillation'])
 
     @property
-    def oscillate(self) -> bool:
-        return self.data['swing_mode']
-
-    @property
-    def angle(self) -> SwingAngle:
-        return SwingAngle(self.data["swing_angle"])
-
-    @property
-    def led(self) -> bool:
-        return self.data['light']
-
-    @property
-    def buzzer(self) -> bool:
-        return self.data['buzzer']
+    def angle(self) -> Angle:
+        return Angle(self.__cloud.get_property(did=self.did, **self.mapping['angle'])).name
 
     @property
     def child_lock(self) -> bool:
-        return self.data['child_lock']
+        return self.__cloud.get_property(did=self.did, **self.mapping['child_lock'])
 
+    @property
+    def buzzer(self) -> bool:
+        return self.__cloud.get_property(did=self.did, **self.mapping['buzzer'])
 
-class Standing2Fan(MiotDevice):
-    _mappings = _MAPPINGS
-
-    @command()
-    def status(self) -> Standing2Status:
-        return Standing2Status(
-            {
-                prop['did']: prop['value'] if prop['code'] == 0 else None
-                for prop in self.get_properties_for_mapping()
-            }
-        )
-
-    @command()
-    def on(self):
-        return self.set_property('power', True)
-
-    @command()
-    def off(self):
-        return self.set_property('power', False)
-
-    @command()
-    def set_mode(self, mode: SwingMode):
-        return self.set_property("mode", mode.value)
-
-    @command()
-    def set_fan_speed(self, speed: FanSpeed):
-        return self.set_property('fan_speed', speed.value)
-
-    @command()
-    def set_angle(self, angle: SwingAngle):
-        return self.set_property('swing_angle', angle.value)
-
-    @command()
-    def set_oscillate(self, oscillate: bool):
-        return self.set_property('swing_mode', oscillate)
-
-    @command()
-    def set_led(self, led: bool):
-        return self.set_property('light', led)
-
-    @command()
-    def set_buzzer(self, buzzer: bool):
-        return self.set_property('buzzer', buzzer)
-
-    @command()
-    def set_child_lock(self, lock: bool):
-        return self.set_property('child_lock', lock)
+    @property
+    def light(self) -> bool:
+        return self.__cloud.get_property(did=self.did, **self.mapping['light'])
 
     @property
     def yandex_info(self):
@@ -237,8 +202,6 @@ class Standing2Fan(MiotDevice):
 
     @property
     def yandex_status(self):
-        device_status = self.status()
-
         return {
             'id': 'dmaker.fan.p18',
             'capabilities': [
@@ -246,56 +209,56 @@ class Standing2Fan(MiotDevice):
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'program',
-                        'value': device_status.mode.name
+                        'value': self.mode
                     }
                 },
                 {
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'work_speed',
-                        'value': device_status.fan_speed.name
+                        'value': self.fan_level
                     }
                 },
                 {
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'swing',
-                        'value': device_status.angle.name
+                        'value': self.angle
                     }
                 },
                 {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'oscillation',
-                        'value': device_status.oscillate
+                        'value': self.oscillation
                     }
                 },
                 {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'controls_locked',
-                        'value': device_status.child_lock
+                        'value': self.child_lock
                     }
                 },
                 {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'mute',
-                        'value': not device_status.buzzer
+                        'value': not self.buzzer
                     }
                 },
                 {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'backlight',
-                        'value': device_status.led
+                        'value': self.light
                     }
                 },
                 {
                     'type': 'devices.capabilities.on_off',
                     'state': {
                         'instance': 'on',
-                        'value': device_status.is_on
+                        'value': self.power
                     }
                 }
             ]
@@ -304,35 +267,41 @@ class Standing2Fan(MiotDevice):
     def yandex_action(self, capabilities):
         capabilities_status = []
 
+        status = 'ERROR'
         for capability in capabilities:
             if capability['type'] == 'devices.capabilities.on_off':
-                if capability['state']['value']:
-                    self.on()
-                else:
-                    self.off()
+                if self.set_power(capability['state']['value']):
+                    status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'program':
-                    self.set_mode(SwingMode[capability['state']['value']])
+                    if self.set_mode(Mode[capability['state']['value']]):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'work_speed':
-                    self.set_fan_speed(FanSpeed[capability['state']['value']])
+                    if self.set_fan_level(FanLevel[capability['state']['value']]):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'swing':
-                    self.set_angle(SwingAngle[capability['state']['value']])
+                    if self.set_angle(Angle[capability['state']['value']]):
+                        status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':
                 if capability['state']['instance'] == 'oscillation':
-                    self.set_oscillate(capability['state']['value'])
+                    if self.set_oscillation(capability['state']['value']):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'controls_locked':
-                    self.set_child_lock(capability['state']['value'])
+                    if self.set_child_lock(capability['state']['value']):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'mute':
-                    self.set_buzzer(not capability['state']['value'])
+                    if self.set_buzzer(not capability['state']['value']):
+                        status = 'DONE'
                 elif capability['state']['instance'] == 'backlight':
-                    self.set_led(capability['state']['value'])
+                    if self.set_light(capability['state']['value']):
+                        status = 'DONE'
 
             capabilities_status.append({
                 'type': capability['type'],
                 'state': {'instance': capability['state']['instance'], 'action_result': {
-                    'status': 'DONE'
+                    'status': status
                 }}})
 
         return capabilities_status

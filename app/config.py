@@ -19,11 +19,5 @@ DB_PW = os.getenv('DB_PW')
 DB_NAME = os.getenv('DB_NAME')
 DB_URI = f'postgresql+psycopg2://{DB_USER}:{DB_PW}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
-FAN_HOST = os.getenv('FAN_HOST')
-FAN_TOKEN = os.getenv('FAN_TOKEN')
-
-VACUUM_HOST = os.getenv('VACUUM_HOST')
-VACUUM_TOKEN = os.getenv('VACUUM_TOKEN')
-
-TV_HOST = os.getenv('TV_HOST')
-TV_MAC = os.getenv('TV_MAC')
+CLOUD_USERNAME = os.getenv('CLOUD_USERNAME')
+CLOUD_PASSWORD = os.getenv('CLOUD_PASSWORD')
