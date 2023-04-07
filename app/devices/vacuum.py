@@ -87,6 +87,10 @@ class Lite2Vacuum:
             'type': 'devices.types.vacuum_cleaner',
             'capabilities': [
                 {
+                    'type': 'devices.capabilities.on_off',
+                    'retrievable': True
+                },
+                {
                     'type': 'devices.capabilities.mode',
                     'retrievable': True,
                     'parameters': {
@@ -131,10 +135,6 @@ class Lite2Vacuum:
                     'parameters': {
                         'instance': 'pause'
                     }
-                },
-                {
-                    'type': 'devices.capabilities.on_off',
-                    'retrievable': True
                 }
             ],
             'properties': [
@@ -156,6 +156,13 @@ class Lite2Vacuum:
             'id': 'ijai.vacuum.v10',
             'capabilities': [
                 {
+                    'type': 'devices.capabilities.on_off',
+                    'state': {
+                        'instance': 'on',
+                        'value': self.state in (2, 5, 6, 7)
+                    }
+                },
+                {
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'cleanup_mode',
@@ -174,13 +181,6 @@ class Lite2Vacuum:
                     'state': {
                         'instance': 'pause',
                         'value': self.state in (1, 2)
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.on_off',
-                    'state': {
-                        'instance': 'on',
-                        'value': self.state in (2, 5, 6, 7)
                     }
                 }
             ],

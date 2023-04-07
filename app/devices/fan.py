@@ -47,7 +47,7 @@ class Standing2Fan:
         return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=mode.value)
 
     def set_fan_level(self, fan_level: FanLevel) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=fan_level.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
 
     def set_oscillation(self, oscillation: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
@@ -104,6 +104,10 @@ class Standing2Fan:
             'room': 'Гостиная',
             'type': 'devices.types.fan',
             'capabilities': [
+                {
+                    'type': 'devices.capabilities.on_off',
+                    'retrievable': True
+                },
                 {
                     'type': 'devices.capabilities.mode',
                     'retrievable': True,
@@ -191,10 +195,6 @@ class Standing2Fan:
                     'parameters': {
                         'instance': 'backlight'
                     }
-                },
-                {
-                    'type': 'devices.capabilities.on_off',
-                    'retrievable': True
                 }
             ],
             'properties': []
@@ -205,6 +205,13 @@ class Standing2Fan:
         return {
             'id': 'dmaker.fan.p18',
             'capabilities': [
+                {
+                    'type': 'devices.capabilities.on_off',
+                    'state': {
+                        'instance': 'on',
+                        'value': self.power
+                    }
+                },
                 {
                     'type': 'devices.capabilities.mode',
                     'state': {
@@ -252,13 +259,6 @@ class Standing2Fan:
                     'state': {
                         'instance': 'backlight',
                         'value': self.light
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.on_off',
-                    'state': {
-                        'instance': 'on',
-                        'value': self.power
                     }
                 }
             ]
