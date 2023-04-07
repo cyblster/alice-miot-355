@@ -21,3 +21,7 @@ DB_URI = f'postgresql+psycopg2://{DB_USER}:{DB_PW}@{DB_HOST}:{DB_PORT}/{DB_NAME}
 
 CLOUD_USERNAME = os.getenv('CLOUD_USERNAME')
 CLOUD_PASSWORD = os.getenv('CLOUD_PASSWORD')
+
+DOMRU_TOKEN = os.getenv('DOMRU_TOKEN')
+DOMRU_PLACE_ID = os.getenv('DOMRU_PLACE_ID')
+DOMRU_CONTROL_ID = os.getenv('DOMRU_CONTROL_ID')
