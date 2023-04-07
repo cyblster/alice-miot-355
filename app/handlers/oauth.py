@@ -1,4 +1,4 @@
-from flask import request, redirect, render_template, flash
+from flask import request, redirect, render_template, session, flash
 from uuid import uuid4
 
 from app import app, config
@@ -16,6 +16,8 @@ from app.db.utils import (
 
 @app.route('/oauth/register', methods=['GET', 'POST'])
 def oauth_register():
+    session.pop('_flashes', None)
+
     form = RegisterForm()
     if form.validate_on_submit():
         if request.form['secret_key'] == config.APP_SECRET:
@@ -33,6 +35,8 @@ def oauth_register():
 
 @app.route('/oauth/login', methods=['GET', 'POST'])
 def oauth_login():
+    session.pop('_flashes', None)
+
     form = LoginForm()
     if form.validate_on_submit():
         user = get_user_by_username(form.username.data)
