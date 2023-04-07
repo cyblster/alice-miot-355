@@ -3,7 +3,7 @@ from app.cloud import MiCloud
 
 from .fan import Standing2Fan
 from .vacuum import Lite2Vacuum
-from.intercom import DomRuApi
+from .intercom import DomRuApi
 
 # Xiaomi MIOT
 api = MiCloud(username=config.CLOUD_USERNAME, password=config.CLOUD_PASSWORD, region='ru')
