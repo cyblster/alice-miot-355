@@ -226,19 +226,13 @@ class MiCloud:
     def get_devices(self):
         url = self.__get_api_url() + '/home/device_list'
         data = {'getVirtualModel': False, 'getHuamiDevices': 0}
-        params = {
-            'data': json.dumps(data)
-        }
+        params = {'data': json.dumps(data)}
 
         return self.__execute_api_call_encrypted(url, params)['result']['list']
 
     def get_properties(self, did: str, mapping: dict):
         url = self.__get_api_url() + '/miotspec/prop/get'
-        data = {
-            'datasource': 1, 'params': [
-                {'did': did, 'siid': data['siid'], 'piid': data['piid']}
-                for data in mapping.values()]
-        }
+        data = {'datasource': 1, 'params': [{'did': did, **values} for values in mapping.values()]}
         params = {
             'data': json.dumps(data)
         }
@@ -248,26 +242,20 @@ class MiCloud:
     def get_property(self, did: str, siid: int, piid: int):
         url = self.__get_api_url() + '/miotspec/prop/get'
         data = {'datasource': 1, 'params': [{'did': did, 'siid': siid, 'piid': piid}]}
-        params = {
-            'data': json.dumps(data)
-        }
+        params = {'data': json.dumps(data)}
 
         return self.__execute_api_call_encrypted(url, params)['result'][0]['value']
 
     def set_property(self, did: str, siid: int, piid: int, value):
         url = self.__get_api_url() + '/miotspec/prop/set'
         data = {'datasource': 1, 'params': [{'did': did, 'siid': siid, 'piid': piid, 'value': value}]}
-        params = {
-            'data': json.dumps(data)
-        }
+        params = {'data': json.dumps(data)}
 
         return self.__execute_api_call_encrypted(url, params)
 
     def call_action(self, did: str, siid: int, aiid: int):
         url = self.__get_api_url() + '/miotspec/action'
         data = {'params': {'did': did, 'siid': siid, 'aiid': aiid, 'in': []}}
-        params = {
-            'data': json.dumps(data)
-        }
+        params = {'data': json.dumps(data)}
 
         return self.__execute_api_call_encrypted(url, params)
