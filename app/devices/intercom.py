@@ -15,6 +15,9 @@ class DomRuApi:
 
         response = requests.post(url, headers=headers, json=data)
 
+        print(response.status_code)
+        print(response.text)
+
         if response.status_code == 200:
             return response.json()['data']['status']
 
