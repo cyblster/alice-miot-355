@@ -25,10 +25,11 @@ class Angle(Enum):
 
 class Standing2Fan:
     def __init__(self, cloud: MiCloud):
-        # https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:fan:0000A005:dmaker-p18:1
         self.__cloud = cloud
 
         self.did = '411582808'
+
+        # https://home.miot-spec.com/spec/dmaker.fan.p18
         self.mapping = {
             'power': {'siid': 2, 'piid': 1},
             'mode': {'siid': 2, 'piid': 3},

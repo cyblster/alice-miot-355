@@ -24,10 +24,11 @@ class WaterLevel(Enum):
 
 class Lite2Vacuum:
     def __init__(self, cloud: MiCloud):
-        # https://miot-spec.org/miot-spec-v2/instance?type=urn:miot-spec-v2:device:vacuum:0000A006:ijai-v10:1
         self.__cloud = cloud
 
         self.did = '474203165'
+
+        # https://home.miot-spec.com/spec/ijai.vacuum.v10
         self.mapping = {
             'state': {'siid': 2, 'piid': 1},
             'sweep_mode': {'siid': 2, 'piid': 4},
