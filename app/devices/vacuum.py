@@ -38,29 +38,29 @@ class Lite2Vacuum:
             'stop': {'siid': 2, 'aiid': 2},
             'home': {'siid': 3, 'aiid': 1},
             'battery': {'siid': 3, 'piid': 1}
-    }
+        }
 
     def set_state(self, state: bool) -> bool:
         if state:
             return self.__cloud.call_action(did=self.did, **self.mapping['start'])
         return self.__cloud.call_action(did=self.did, **self.mapping['home'])
 
+    def set_sweep_mode(self, sweep_mode: SweepMode) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'],
+                                         value=sweep_mode.value)
+
+    def set_work_speed(self, work_speed: WorkSpeed) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'],
+                                         value=work_speed.value)
+
+    def set_water_level(self, water_level: WaterLevel) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['water_level'],
+                                         value=water_level.value)
+
     def set_pause(self, pause: bool) -> bool:
         if pause:
             return self.__cloud.call_action(did=self.did, **self.mapping['stop'])
         return self.__cloud.call_action(did=self.did, **self.mapping['start'])
-
-    def set_sweep_mode(self, sweep_mode: str) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'],
-                                         value=SweepMode[sweep_mode].value)
-
-    def set_work_speed(self, work_speed: str) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'],
-                                         value=WorkSpeed[work_speed].value)
-
-    def set_water_level(self, water_level: str) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['water_level'],
-                                         value=WaterLevel[water_level].value)
 
     @property
     def state(self) -> bool:
@@ -210,10 +210,10 @@ class Lite2Vacuum:
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'cleanup_mode':
-                    if self.set_sweep_mode(capability['state']['value']):
+                    if self.set_sweep_mode(SweepMode[capability['state']['value']]):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'work_speed':
-                    if self.set_work_speed(capability['state']['value']):
+                    if self.set_work_speed(WorkSpeed[capability['state']['value']]):
                         status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':

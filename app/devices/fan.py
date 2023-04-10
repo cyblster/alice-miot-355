@@ -44,17 +44,17 @@ class Standing2Fan:
     def set_power(self, power: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['power'], value=power)
 
-    def set_mode(self, mode: str) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=Mode[mode].value)
+    def set_mode(self, mode: Mode) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=mode.value)
 
-    def set_fan_level(self, fan_level: str) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=FanLevel[fan_level].value)
+    def set_fan_level(self, fan_level: FanLevel) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
 
     def set_oscillation(self, oscillation: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
 
-    def set_angle(self, angle: int) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=Angle[angle].value)
+    def set_angle(self, angle: Angle) -> bool:
+        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=angle.value)
 
     def set_child_lock(self, child_lock: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['child_lock'], value=child_lock)
@@ -276,13 +276,13 @@ class Standing2Fan:
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'program':
-                    if self.set_mode(capability['state']['value']):
+                    if self.set_mode(Mode[capability['state']['value']]):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'work_speed':
                     if self.set_fan_level(FanLevel[capability['state']['value']]):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'swing':
-                    if self.set_angle(capability['state']['value']):
+                    if self.set_angle(Angle[capability['state']['value']]):
                         status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':
