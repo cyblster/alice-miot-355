@@ -276,13 +276,13 @@ class Standing2Fan:
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'program':
-                    if self.set_mode(Mode[capability['state']['value']]):
+                    if self.set_mode(capability['state']['value']):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'work_speed':
                     if self.set_fan_level(FanLevel[capability['state']['value']]):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'swing':
-                    if self.set_angle(Angle[capability['state']['value']]):
+                    if self.set_angle(capability['state']['value']):
                         status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':
