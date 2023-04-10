@@ -51,28 +51,31 @@ class Lite2Vacuum:
         return self.__cloud.call_action(did=self.did, **self.mapping['start'])
 
     def set_sweep_mode(self, sweep_mode: SweepMode) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'], value=sweep_mode.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'],
+                                         value=SweepMode[sweep_mode].value)
 
     def set_work_speed(self, work_speed: WorkSpeed) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'], value=work_speed.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'],
+                                         value=WorkSpeed[work_speed].value)
 
     def set_water_level(self, water_level: WaterLevel) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['water_level'], value=water_level.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['water_level'],
+                                         value=WaterLevel[water_level].value)
 
     @property
     def state(self) -> bool:
         return self.__cloud.get_property(did=self.did, **self.mapping['state'])
 
     @property
-    def sweep_mode(self) -> SweepMode:
+    def sweep_mode(self) -> str:
         return SweepMode(self.__cloud.get_property(did=self.did, **self.mapping['sweep_mode'])).name
 
     @property
-    def work_speed(self) -> WorkSpeed:
+    def work_speed(self) -> str:
         return WorkSpeed(self.__cloud.get_property(did=self.did, **self.mapping['work_speed'])).name
 
     @property
-    def water_level(self) -> WaterLevel:
+    def water_level(self) -> str:
         return WaterLevel(self.__cloud.get_property(did=self.did, **self.mapping['water_level'])).name
 
     @property

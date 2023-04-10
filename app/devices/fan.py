@@ -45,16 +45,16 @@ class Standing2Fan:
         return self.__cloud.set_property(did=self.did, **self.mapping['power'], value=power)
 
     def set_mode(self, mode: Mode) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=mode.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=Mode[mode].value)
 
     def set_fan_level(self, fan_level: FanLevel) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=FanLevel[fan_level].value)
 
     def set_oscillation(self, oscillation: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
 
     def set_angle(self, angle: Angle) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=angle.value)
+        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=Angle[angle].value)
 
     def set_child_lock(self, child_lock: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['child_lock'], value=child_lock)
@@ -70,11 +70,11 @@ class Standing2Fan:
         return self.__cloud.get_property(did=self.did, **self.mapping['power'])
 
     @property
-    def mode(self) -> Mode:
+    def mode(self) -> str:
         return Mode(self.__cloud.get_property(did=self.did, **self.mapping['mode'])).name
 
     @property
-    def fan_level(self) -> FanLevel:
+    def fan_level(self) -> str:
         return FanLevel(self.__cloud.get_property(did=self.did, **self.mapping['fan_level'])).name
 
     @property
@@ -82,7 +82,7 @@ class Standing2Fan:
         return self.__cloud.get_property(did=self.did, **self.mapping['oscillation'])
 
     @property
-    def angle(self) -> Angle:
+    def angle(self) -> str:
         return Angle(self.__cloud.get_property(did=self.did, **self.mapping['angle'])).name
 
     @property
