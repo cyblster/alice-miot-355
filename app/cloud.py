@@ -244,7 +244,7 @@ class MiCloud:
         data = {'datasource': 1, 'params': [{'did': did, 'siid': siid, 'piid': piid}]}
         params = {'data': json.dumps(data)}
 
-        return self.__execute_api_call_encrypted(url, params)['result'][0]
+        return self.__execute_api_call_encrypted(url, params)['result'][0]['value']
 
     def set_property(self, did: str, siid: int, piid: int, value):
         url = self.__get_api_url() + '/miotspec/prop/set'

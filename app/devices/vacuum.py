@@ -50,15 +50,15 @@ class Lite2Vacuum:
             return self.__cloud.call_action(did=self.did, **self.mapping['stop'])
         return self.__cloud.call_action(did=self.did, **self.mapping['start'])
 
-    def set_sweep_mode(self, sweep_mode: SweepMode) -> bool:
+    def set_sweep_mode(self, sweep_mode: str) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['sweep_mode'],
                                          value=SweepMode[sweep_mode].value)
 
-    def set_work_speed(self, work_speed: WorkSpeed) -> bool:
+    def set_work_speed(self, work_speed: str) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['work_speed'],
                                          value=WorkSpeed[work_speed].value)
 
-    def set_water_level(self, water_level: WaterLevel) -> bool:
+    def set_water_level(self, water_level: str) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['water_level'],
                                          value=WaterLevel[water_level].value)
 

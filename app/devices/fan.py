@@ -44,16 +44,16 @@ class Standing2Fan:
     def set_power(self, power: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['power'], value=power)
 
-    def set_mode(self, mode: Mode) -> bool:
+    def set_mode(self, mode: str) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=Mode[mode].value)
 
-    def set_fan_level(self, fan_level: FanLevel) -> bool:
+    def set_fan_level(self, fan_level: str) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=FanLevel[fan_level].value)
 
     def set_oscillation(self, oscillation: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
 
-    def set_angle(self, angle: Angle) -> bool:
+    def set_angle(self, angle: int) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=Angle[angle].value)
 
     def set_child_lock(self, child_lock: bool) -> bool:
