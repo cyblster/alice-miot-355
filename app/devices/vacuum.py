@@ -1,6 +1,8 @@
+# Пример управления роботом-пылесосм Xiaomi
+
 from enum import Enum
 
-from app.cloud import MiCloud
+from app.clouds.mi_cloud import MiCloud
 
 
 class SweepMode(Enum):

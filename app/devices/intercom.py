@@ -1,3 +1,5 @@
+# Пример управления домофоном DomRu
+
 import requests
 import random
 
@@ -10,8 +12,13 @@ class DomRuApi:
 
     def open_door(self):
         url = f'https://api-mh.ertelecom.ru/rest/v1/places/{self._place_id}/accesscontrols/{self._control_id}/actions'
-        headers = {'User-Agent': self.__generate_agent(), 'Authorization': f'Bearer {self._token}'}
-        data = {'name': 'accessControlOpen'}
+        headers = {
+            'User-Agent': self.__generate_agent(),
+            'Authorization': f'Bearer {self._token}'
+        }
+        data = {
+            'name': 'accessControlOpen'
+        }
 
         response = requests.post(url, headers=headers, json=data)
 
@@ -24,7 +31,7 @@ class DomRuApi:
     def __generate_agent() -> str:
         agent_id = ''.join((chr(random.randint(65, 69)) for _ in range(13)))
 
-        return f'Android-7.1.1-1.0.0-ONEPLUS A3010-136-{agent_id} APP/xiaomi.smarthome APPV/62830'
+        return f'Android-7.1.1-1.0.0-ONEPLUS A3010-136-{agent_id}'
 
     @property
     def yandex_info(self):
