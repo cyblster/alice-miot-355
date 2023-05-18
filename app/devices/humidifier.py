@@ -90,7 +90,7 @@ class Humidifier2:
             'id': 'deerma.humidifier.jsq2w',
             'name': 'Увлажнитель',
             'room': 'Спальня',
-            'type': 'devices.types.fan',
+            'type': 'devices.types.humidifier',
             'capabilities': [
                 {
                     'type': 'devices.capabilities.on_off',
@@ -160,16 +160,20 @@ class Humidifier2:
             'properties': [
                 {
                     'type': 'devices.properties.float',
-                    'state': {
+                    'retrievable': True,
+                    'reportable': True,
+                    'parameters': {
                         'instance': 'humidity',
-                        'value': self.humidity
+                        'unit': 'unit.percent'
                     }
                 },
                 {
                     'type': 'devices.properties.float',
-                    'state': {
+                    'retrievable': True,
+                    'reportable': True,
+                    'parameters': {
                         'instance': 'temperature',
-                        'value': self.temperature
+                        'unit': 'unit.temperature.celsius'
                     }
                 }
             ]
