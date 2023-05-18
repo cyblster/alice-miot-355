@@ -133,24 +133,7 @@ class Humidifier2:
                     }
                 }
             ],
-            'properties': [
-                {
-                    'type': 'devices.properties.float',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'humidity',
-                        'unit': 'unit.percent'
-                    }
-                },
-                {
-                    'type': 'devices.properties.float',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'temperature',
-                        'unit': 'unit.temperature.celsius'
-                    }
-                }
-            ]
+            'properties': []
         }
 
     @property
@@ -194,22 +177,7 @@ class Humidifier2:
                     }
                 }
             ],
-            'properties': [
-                {
-                    'type': 'devices.properties.float',
-                    'state': {
-                        'instance': 'humidity',
-                        'value': self.humidity
-                    }
-                },
-                {
-                    'type': 'devices.properties.float',
-                    'state': {
-                        'instance': 'temperature',
-                        'value': self.temperature
-                    }
-                }
-            ]
+            'properties': []
         }
 
     def yandex_action(self, capabilities):
