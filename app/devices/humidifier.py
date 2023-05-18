@@ -227,7 +227,22 @@ class Humidifier2:
                     }
                 }
             ],
-
+            'properties': [
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'humidity',
+                        'value': self.humidity
+                    }
+                },
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'temperature',
+                        'value': self.temperature
+                    }
+                }
+            ]
         }
 
     def yandex_action(self, capabilities):
