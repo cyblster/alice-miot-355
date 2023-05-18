@@ -148,7 +148,6 @@ class Lite2Vacuum:
                 {
                     'type': 'devices.properties.float',
                     'retrievable': True,
-                    'reportable': True,
                     'parameters': {
                         'instance': 'battery_level',
                         'unit': 'unit.percent'

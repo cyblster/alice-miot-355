@@ -137,7 +137,6 @@ class Humidifier2:
                 {
                     'type': 'devices.properties.float',
                     'retrievable': True,
-                    'reportable': True,
                     'parameters': {
                         'instance': 'humidity',
                         'unit': 'unit.percent'
@@ -146,7 +145,6 @@ class Humidifier2:
                 {
                     'type': 'devices.properties.float',
                     'retrievable': True,
-                    'reportable': True,
                     'parameters': {
                         'instance': 'temperature',
                         'unit': 'unit.temperature.celsius'
