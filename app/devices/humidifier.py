@@ -84,14 +84,13 @@ class Humidifier2:
     def temperature(self) -> int:
         return self.__cloud.get_property(did=self.did, **self.mapping['temperature'])
 
-
     @property
     def yandex_info(self):
         return {
-            'id': 'dmaker.fan.p18',
-            'name': 'Вентилятор',
-            'room': 'Гостиная',
-            'type': 'devices.types.fan',
+            'id': 'deerma.humidifier.jsq2w',
+            'name': 'Увлажнитель',
+            'room': 'Спальня',
+            'type': 'devices.types.humidifier',
             'capabilities': [
                 {
                     'type': 'devices.capabilities.on_off',
