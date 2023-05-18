@@ -10,12 +10,7 @@ class FanLevel(Enum):
     one = 1
     two = 2
     three = 3
-    four = 4
-
-
-class Mode(Enum):
-    normal = 0
-    smart = 1
+    smart = 4
 
 
 class Humidifier2:
@@ -27,7 +22,6 @@ class Humidifier2:
         # https://home.miot-spec.com/spec/dmaker.fan.p18
         self.mapping = {
             'power': {'siid': 2, 'piid': 1},
-            'mode': {'siid': 2, 'piid': 8},
             'fan_level': {'siid': 2, 'piid': 5},
             'target_humidity': {'siid': 2, 'piid': 6},
             'buzzer': {'siid': 5, 'piid': 1},
@@ -39,14 +33,11 @@ class Humidifier2:
     def set_power(self, power: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['power'], value=power)
 
-    def set_mode(self, mode: Mode) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['mode'], value=mode.value)
-
     def set_fan_level(self, fan_level: FanLevel) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
 
     def set_humidity(self, target_humidity: int) -> bool:
-        if not 40 <= humidity <= 70:
+        if not 40 <= target_humidity <= 70:
             raise ValueError(f'Humidity must be between 40 and 70')
 
         return self.__cloud.set_property(did=self.did, **self.mapping['target_humidity'], value=target_humidity)
@@ -60,10 +51,6 @@ class Humidifier2:
     @property
     def power(self) -> bool:
         return self.__cloud.get_property(did=self.did, **self.mapping['power'])
-
-    @property
-    def mode(self) -> str:
-        return Mode(self.__cloud.get_property(did=self.did, **self.mapping['mode'])).name
 
     @property
     def fan_level(self) -> str:
@@ -104,21 +91,6 @@ class Humidifier2:
                         'instance': 'program',
                         'modes': [
                             {
-                                'value': 'normal'
-                            },
-                            {
-                                'value': 'smart'
-                            }
-                        ]
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.mode',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'work_speed',
-                        'modes': [
-                            {
                                 'value': 'one'
                             },
                             {
@@ -128,7 +100,7 @@ class Humidifier2:
                                 'value': 'three'
                             },
                             {
-                                'value': 'four'
+                                'value': 'smart'
                             }
                         ]
                     }
@@ -199,13 +171,6 @@ class Humidifier2:
                     'type': 'devices.capabilities.mode',
                     'state': {
                         'instance': 'program',
-                        'value': self.mode
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.mode',
-                    'state': {
-                        'instance': 'work_speed',
                         'value': self.fan_level
                     }
                 },
@@ -260,9 +225,6 @@ class Humidifier2:
 
             elif capability['type'] == 'devices.capabilities.mode':
                 if capability['state']['instance'] == 'program':
-                    if self.set_mode(Mode[capability['state']['value']]):
-                        status = 'DONE'
-                elif capability['state']['instance'] == 'work_speed':
                     if self.set_fan_level(FanLevel[capability['state']['value']]):
                         status = 'DONE'
 
