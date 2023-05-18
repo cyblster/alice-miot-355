@@ -29,8 +29,6 @@ def get_user_devices():
 
     devices_info = [device.yandex_info for device in devices.values()]
 
-    print(devices_info)
-
     return {'request_id': request_id, 'payload': {'user_id': payload['sub'], 'devices': devices_info}}, 200
 
 
