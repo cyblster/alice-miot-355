@@ -45,11 +45,11 @@ class Humidifier2:
     def set_fan_level(self, fan_level: FanLevel) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
 
-    def set_humidity(self, humidity: int) -> bool:
+    def set_humidity(self, target_humidity: int) -> bool:
         if not 40 <= humidity <= 70:
             raise ValueError(f'Humidity must be between 40 and 70')
 
-        return self.__cloud.set_property(did=self.did, **self.mapping['humidity'], value=humidity)
+        return self.__cloud.set_property(did=self.did, **self.mapping['target_humidity'], value=target_humidity)
 
     def set_buzzer(self, buzzer: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['buzzer'], value=buzzer)
