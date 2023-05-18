@@ -178,7 +178,7 @@ class Humidifier2:
     @property
     def yandex_status(self):
         return {
-            'id': 'dmaker.fan.p18',
+            'id': 'deerma.humidifier.jsq2w',
             'capabilities': [
                 {
                     'type': 'devices.capabilities.on_off',
