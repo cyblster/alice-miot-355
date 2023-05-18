@@ -10,6 +10,7 @@ class FanLevel(Enum):
     one = 1
     two = 2
     three = 3
+    four = 4
 
 
 class Mode(Enum):
@@ -125,6 +126,9 @@ class Humidifier2:
                             },
                             {
                                 'value': 'three'
+                            },
+                            {
+                                'value': 'four'
                             }
                         ]
                     }
