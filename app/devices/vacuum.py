@@ -3,6 +3,7 @@
 from enum import Enum
 
 from app.clouds.mi_cloud import MiCloud
+from app.config import MI_CLOUD_VACUUM_TOKEN
 
 
 class SweepMode(Enum):
@@ -28,7 +29,7 @@ class Lite2Vacuum:
     def __init__(self, cloud: MiCloud):
         self.__cloud = cloud
 
-        self.did = '474203165'
+        self.did = self.__cloud.get_device_id(MI_CLOUD_VACUUM_TOKEN)
 
         # https://home.miot-spec.com/spec/ijai.vacuum.v10
         self.mapping = {

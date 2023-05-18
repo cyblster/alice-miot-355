@@ -1,47 +1,38 @@
-# Пример управления вентилятором Xiaomi
+# Пример управления увлажнителем Xiaomi
 
 from enum import Enum
 
 from app.clouds.mi_cloud import MiCloud
-from app.config import MI_CLOUD_FAN_TOKEN
+from app.config import MI_CLOUD_HUMIDIFIER_TOKEN
 
 
 class FanLevel(Enum):
     one = 1
     two = 2
     three = 3
-    four = 4
 
 
 class Mode(Enum):
     normal = 0
-    auto = 1
+    smart = 1
 
 
-class Angle(Enum):
-    min = 30
-    low = 60
-    medium = 90
-    high = 120
-    max = 140
-
-
-class Standing2Fan:
+class Humidifier2:
     def __init__(self, cloud: MiCloud):
         self.__cloud = cloud
 
-        self.did = self.__cloud.get_device_id(MI_CLOUD_FAN_TOKEN)
+        self.did = self.__cloud.get_device_id(MI_CLOUD_HUMIDIFIER_TOKEN)
 
         # https://home.miot-spec.com/spec/dmaker.fan.p18
         self.mapping = {
             'power': {'siid': 2, 'piid': 1},
-            'mode': {'siid': 2, 'piid': 3},
-            'fan_level': {'siid': 2, 'piid': 2},
-            'oscillation': {'siid': 2, 'piid': 4},
-            'angle': {'siid': 2, 'piid': 5},
-            'child_lock': {'siid': 3, 'piid': 1},
-            'buzzer': {'siid': 2, 'piid': 8},
-            'light': {'siid': 2, 'piid': 7}
+            'mode': {'siid': 2, 'piid': 8},
+            'fan_level': {'siid': 2, 'piid': 5},
+            'target_humidity': {'siid': 2, 'piid': 6},
+            'buzzer': {'siid': 5, 'piid': 1},
+            'light': {'siid': 6, 'piid': 1},
+            'relative_humidity': {'siid': 3, 'piid': 1},
+            'temperature': {'siid': 3, 'piid': 1}
         }
 
     def set_power(self, power: bool) -> bool:
@@ -53,14 +44,11 @@ class Standing2Fan:
     def set_fan_level(self, fan_level: FanLevel) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['fan_level'], value=fan_level.value)
 
-    def set_oscillation(self, oscillation: bool) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['oscillation'], value=oscillation)
+    def set_humidity(self, humidity: int) -> bool:
+        if not 40 <= humidity <= 70:
+            raise ValueError(f'Humidity must be between 40 and 70')
 
-    def set_angle(self, angle: Angle) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['angle'], value=angle.value)
-
-    def set_child_lock(self, child_lock: bool) -> bool:
-        return self.__cloud.set_property(did=self.did, **self.mapping['child_lock'], value=child_lock)
+        return self.__cloud.set_property(did=self.did, **self.mapping['humidity'], value=humidity)
 
     def set_buzzer(self, buzzer: bool) -> bool:
         return self.__cloud.set_property(did=self.did, **self.mapping['buzzer'], value=buzzer)
@@ -81,24 +69,21 @@ class Standing2Fan:
         return FanLevel(self.__cloud.get_property(did=self.did, **self.mapping['fan_level'])).name
 
     @property
-    def oscillation(self) -> bool:
-        return self.__cloud.get_property(did=self.did, **self.mapping['oscillation'])
-
-    @property
-    def angle(self) -> str:
-        return Angle(self.__cloud.get_property(did=self.did, **self.mapping['angle'])).name
-
-    @property
-    def child_lock(self) -> bool:
-        return self.__cloud.get_property(did=self.did, **self.mapping['child_lock'])
-
-    @property
     def buzzer(self) -> bool:
         return self.__cloud.get_property(did=self.did, **self.mapping['buzzer'])
 
     @property
     def light(self) -> bool:
         return self.__cloud.get_property(did=self.did, **self.mapping['light'])
+
+    @property
+    def humidity(self) -> int:
+        return self.__cloud.get_property(did=self.did, **self.mapping['relative_humidity'])
+
+    @property
+    def temperature(self) -> int:
+        return self.__cloud.get_property(did=self.did, **self.mapping['temperature'])
+
 
     @property
     def yandex_info(self):
@@ -122,7 +107,7 @@ class Standing2Fan:
                                 'value': 'normal'
                             },
                             {
-                                'value': 'auto'
+                                'value': 'smart'
                             }
                         ]
                     }
@@ -141,49 +126,8 @@ class Standing2Fan:
                             },
                             {
                                 'value': 'three'
-                            },
-                            {
-                                'value': 'four'
                             }
                         ]
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.mode',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'swing',
-                        'modes': [
-                            {
-                                'value': 'min'
-                            },
-                            {
-                                'value': 'low'
-                            },
-                            {
-                                'value': 'medium'
-                            },
-                            {
-                                'value': 'high'
-                            },
-                            {
-                                'value': 'max'
-                            }
-                        ]
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.toggle',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'oscillation'
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.toggle',
-                    'retrievable': True,
-                    'parameters': {
-                        'instance': 'controls_locked'
                     }
                 },
                 {
@@ -199,9 +143,37 @@ class Standing2Fan:
                     'parameters': {
                         'instance': 'backlight'
                     }
+                },
+                {
+                    'type': 'devices.capabilities.range',
+                    'retrievable': True,
+                    'parameters': {
+                        'instance': 'humidity',
+                        'range': {
+                            'max': 70,
+                            'min': 40,
+                            'precision': 1
+                        },
+                        'unit': 'unit.percent'
+                    }
                 }
             ],
-            'properties': []
+            'properties': [
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'humidity',
+                        'value': self.humidity
+                    }
+                },
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'temperature',
+                        'value': self.temperature
+                    }
+                }
+            ]
         }
 
     @property
@@ -231,27 +203,6 @@ class Standing2Fan:
                     }
                 },
                 {
-                    'type': 'devices.capabilities.mode',
-                    'state': {
-                        'instance': 'swing',
-                        'value': self.angle
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.toggle',
-                    'state': {
-                        'instance': 'oscillation',
-                        'value': self.oscillation
-                    }
-                },
-                {
-                    'type': 'devices.capabilities.toggle',
-                    'state': {
-                        'instance': 'controls_locked',
-                        'value': self.child_lock
-                    }
-                },
-                {
                     'type': 'devices.capabilities.toggle',
                     'state': {
                         'instance': 'mute',
@@ -263,6 +214,29 @@ class Standing2Fan:
                     'state': {
                         'instance': 'backlight',
                         'value': self.light
+                    }
+                },
+                {
+                    'type': 'devices.capabilities.range',
+                    'state': {
+                        'instance': 'humidity',
+                        'value': self.humidity
+                    }
+                }
+            ],
+            'properties': [
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'humidity',
+                        'value': self.humidity
+                    }
+                },
+                {
+                    'type': 'devices.properties.float',
+                    'state': {
+                        'instance': 'temperature',
+                        'value': self.temperature
                     }
                 }
             ]
@@ -284,22 +258,18 @@ class Standing2Fan:
                 elif capability['state']['instance'] == 'work_speed':
                     if self.set_fan_level(FanLevel[capability['state']['value']]):
                         status = 'DONE'
-                elif capability['state']['instance'] == 'swing':
-                    if self.set_angle(Angle[capability['state']['value']]):
-                        status = 'DONE'
 
             elif capability['type'] == 'devices.capabilities.toggle':
-                if capability['state']['instance'] == 'oscillation':
-                    if self.set_oscillation(capability['state']['value']):
-                        status = 'DONE'
-                elif capability['state']['instance'] == 'controls_locked':
-                    if self.set_child_lock(capability['state']['value']):
-                        status = 'DONE'
-                elif capability['state']['instance'] == 'mute':
+                if capability['state']['instance'] == 'mute':
                     if self.set_buzzer(not capability['state']['value']):
                         status = 'DONE'
                 elif capability['state']['instance'] == 'backlight':
                     if self.set_light(capability['state']['value']):
+                        status = 'DONE'
+
+            elif capability['type'] == 'devices.capabilities.range':
+                if capability['state']['instance'] == 'humidity':
+                    if self.set_humidity(capability['state']['value']):
                         status = 'DONE'
 
             capabilities_status.append({

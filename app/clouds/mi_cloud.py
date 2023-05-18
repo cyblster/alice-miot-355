@@ -230,6 +230,18 @@ class MiCloud:
 
         return self._execute_api_call_encrypted(url, params)['result']['list']
 
+    def get_device_id(self, token: str):
+        url = self._get_api_url() + '/home/device_list'
+        data = {'getVirtualModel': False, 'getHuamiDevices': 0}
+        params = {'data': json.dumps(data)}
+
+        devices = self._execute_api_call_encrypted(url, params)['result']['list']
+
+        for device in devices:
+            if device['token'] == token:
+                return device['did']
+        return None
+
     def get_properties(self, did: str, mapping: dict):
         url = self._get_api_url() + '/miotspec/prop/get'
         data = {'datasource': 1, 'params': [{'did': did, **values} for values in mapping.values()]}
