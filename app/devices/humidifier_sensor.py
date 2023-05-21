@@ -62,7 +62,7 @@ class Humidifier2Sensor(Humidifier2):
                 {
                     'type': 'devices.properties.float',
                     'state': {
-                        'instance': 'temperature',
+                        'instance': 'humidity',
                         'value': self.relative_humidity
                     }
                 }
