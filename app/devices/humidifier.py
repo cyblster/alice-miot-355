@@ -208,8 +208,12 @@ class Humidifier2:
 
             elif capability['type'] == 'devices.capabilities.range':
                 if capability['state']['instance'] == 'humidity':
-                    if self.set_humidity(capability['state']['value']):
-                        status = 'DONE'
+                    if capability['state'].get('relative') is None:
+                        if self.set_humidity(capability['state']['value']):
+                            status = 'DONE'
+                    else:
+                        if self.set_humidity(self.target_humidity + capability['state']['value']):
+                            status = 'DONE'
 
             capabilities_status.append({
                 'type': capability['type'],
