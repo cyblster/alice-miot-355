@@ -19,7 +19,7 @@ class Humidifier2:
 
         self.did = self.__cloud.get_device_id(MI_CLOUD_HUMIDIFIER_TOKEN)
 
-        # https://home.miot-spec.com/spec/dmaker.fan.p18
+        # https://home.miot-spec.com/spec/deerma.humidifier.jsq2w
         self.mapping = {
             'power': {'siid': 2, 'piid': 1},
             'fan_level': {'siid': 2, 'piid': 5},
@@ -57,6 +57,10 @@ class Humidifier2:
         return FanLevel(self.__cloud.get_property(did=self.did, **self.mapping['fan_level'])).name
 
     @property
+    def target_humidity(self) -> int:
+        return self.__cloud.get_property(did=self.did, **self.mapping['target_humidity'])
+
+    @property
     def buzzer(self) -> bool:
         return self.__cloud.get_property(did=self.did, **self.mapping['buzzer'])
 
@@ -65,7 +69,7 @@ class Humidifier2:
         return self.__cloud.get_property(did=self.did, **self.mapping['light'])
 
     @property
-    def humidity(self) -> int:
+    def relative_humidity(self) -> int:
         return self.__cloud.get_property(did=self.did, **self.mapping['relative_humidity'])
 
     @property
@@ -173,7 +177,7 @@ class Humidifier2:
                     'type': 'devices.capabilities.range',
                     'state': {
                         'instance': 'humidity',
-                        'value': self.humidity
+                        'value': self.target_humidity
                     }
                 }
             ],
