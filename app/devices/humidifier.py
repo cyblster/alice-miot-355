@@ -70,7 +70,7 @@ class Humidifier2:
 
     @property
     def relative_humidity(self) -> int:
-        print(self.__cloud.get_property(did=self.did, **self.mapping['temperature']))
+        print(self.__cloud.get_property(did=self.did, **self.mapping['relative_humidity']))
 
         return self.__cloud.get_property(did=self.did, **self.mapping['relative_humidity'])
 
