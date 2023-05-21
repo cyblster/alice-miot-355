@@ -22,7 +22,7 @@ class Humidifier2Sensor(Humidifier2):
             'id': 'deerma.humidifier.jsq2w.sensor',
             'name': 'Метеостанция',
             'room': 'Спальня',
-            'type': 'devices.types.humidifier',
+            'type': 'devices.types.sensor',
             'capabilities': [],
             'properties': [
                 {
